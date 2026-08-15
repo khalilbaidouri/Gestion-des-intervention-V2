@@ -1,0 +1,74 @@
+<header class="navbar">
+  <div class="navbar__inner">
+    <!-- Logo -->
+    <a class="navbar__brand" routerLink="/" (click)="closeMobileMenu()">
+      <span class="navbar__brand-mark">OCP</span>
+      <span class="navbar__brand-name">TaskFlow</span>
+    </a>
+
+    <!-- Burger (mobile only) -->
+    <button
+      class="navbar__burger"
+      type="button"
+      [class.is-open]="isMobileMenuOpen"
+      (click)="toggleMobileMenu()"
+      [attr.aria-expanded]="isMobileMenuOpen"
+      aria-label="Ouvrir le menu de navigation"
+    >
+      <span></span><span></span><span></span>
+    </button>
+
+    <!-- Nav links -->
+    <nav
+      class="navbar__links"
+      [class.is-open]="isMobileMenuOpen"
+      aria-label="Navigation principale"
+    >
+      @for (link of navLinks; track link.path) {
+        <a
+          class="navbar__link"
+          [routerLink]="link.path"
+          routerLinkActive="is-active"
+          [routerLinkActiveOptions]="{ exact: link.path === '/' }"
+          (click)="closeMobileMenu()"
+        >
+          <span class="navbar__link-icon" aria-hidden="true">{{ link.icon }}</span>
+          <span class="navbar__link-label">{{ link.label }}</span>
+        </a>
+      }
+    </nav>
+
+    <!-- Right side: notifications + user + logout -->
+    <div class="navbar__actions">
+      <button
+        class="navbar__icon-btn"
+        type="button"
+        (click)="onNotificationsClick()"
+        aria-label="Notifications"
+      >
+        <span aria-hidden="true">🔔</span>
+        @if (notificationCount > 0) {
+          <span class="navbar__badge">{{ notificationCount }}</span>
+        }
+      </button>
+
+      <div class="navbar__user">
+        <span class="navbar__avatar" aria-hidden="true">{{ userInitials }}</span>
+        <div class="navbar__user-info">
+          <span class="navbar__user-name">{{ userFullName }}</span>
+          <span class="navbar__user-role">{{ userRole }}</span>
+        </div>
+      </div>
+
+      <button
+        class="navbar__icon-btn navbar__logout"
+        type="button"
+        (click)="onLogoutClick()"
+        aria-label="Déconnexion"
+      >
+        <span aria-hidden="true">🚪</span>
+        <span class="navbar__logout-label">Déconnexion</span>
+      </button>
+    </div>
+  </div>
+</header>
