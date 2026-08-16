@@ -2,6 +2,8 @@ import { Component, EventEmitter, Output, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { Auth } from '../../core/services/auth';
+import { Theme, ThemeMode } from '../../core/services/theme';
+import { LucideAngularModule, LayoutDashboard, ClipboardList, Wrench, Calendar, User, Bell, LogOut, Menu, X, Sun, Moon, Monitor, Check } from 'lucide-angular';
 
 interface NavLink {
   label: string;
@@ -12,14 +14,40 @@ interface NavLink {
 @Component({
   selector: 'app-engineer-navbar',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive],
+  imports: [CommonModule, RouterLink, RouterLinkActive, LucideAngularModule],
   templateUrl: './engineer-navbar.html',
   styleUrl: './engineer-navbar.css',
 })
 export class EngineerNavbar {
-  // À remplacer par les vraies données (AuthService / UserService).
-  // Aucune logique d'auth ici : ce composant est purement présentationnel.
-  constructor(private auth: Auth) {}
+  readonly icons = {
+    dashboard: LayoutDashboard,
+    clipboard: ClipboardList,
+    wrench: Wrench,
+    calendar: Calendar,
+    user: User,
+    bell: Bell,
+    logout: LogOut,
+    menu: Menu,
+    close: X,
+    sun: Sun,
+    moon: Moon,
+    monitor: Monitor,
+    check: Check,
+  };
+
+  readonly themeOptions: { mode: ThemeMode; label: string; icon: typeof Sun }[] = [
+    { mode: 'light', label: 'Clair', icon: Sun },
+    { mode: 'dark', label: 'Sombre', icon: Moon },
+    { mode: 'system', label: 'Système', icon: Monitor },
+  ];
+
+  isThemeMenuOpen = false;
+
+  constructor(
+    private auth: Auth,
+    public theme: Theme,
+  ) {}
+
   get userRole(): string {
     return this.auth.getRole() ?? '';
   }
@@ -27,17 +55,17 @@ export class EngineerNavbar {
   get userFullName(): string {
     return this.auth.getCurrentUsername() ?? '';
   }
+
   navLinks: NavLink[] = [
-    { label: 'Dashboard', icon: '📊', path: '/' },
-    { label: 'Demandes', icon: '📋', path: '/demandes' },
-    { label: 'Interventions', icon: '🛠️', path: '/interventions' },
-    { label: 'Calendrier', icon: '📅', path: '/calendar' },
-    { label: 'Profil', icon: '👤', path: '/profile' },
-    { label: 'Notifications', icon: '🔔', path: '/notifications' },
+    { label: 'Dashboard', icon: 'dashboard', path: '/' },
+    { label: 'Demandes', icon: 'clipboard', path: '/demandes' },
+    { label: 'Interventions', icon: 'wrench', path: '/interventions' },
+    { label: 'Calendrier', icon: 'calendar', path: '/calendar' },
+    { label: 'Profil', icon: 'user', path: '/profile' },
+    { label: 'Notifications', icon: 'bell', path: '/notifications' },
   ];
 
   notificationCount = 0;
-
   isMobileMenuOpen = false;
 
   @Output() logout = new EventEmitter<void>();
@@ -52,6 +80,28 @@ export class EngineerNavbar {
       .join('');
   }
 
+  get currentThemeIcon() {
+    const found = this.themeOptions.find((o) => o.mode === this.theme.mode());
+    return found ? found.icon : Monitor;
+  }
+
+  getIcon(iconKey: string) {
+    return this.icons[iconKey as keyof typeof this.icons];
+  }
+
+  toggleThemeMenu(): void {
+    this.isThemeMenuOpen = !this.isThemeMenuOpen;
+  }
+
+  closeThemeMenu(): void {
+    this.isThemeMenuOpen = false;
+  }
+
+  selectTheme(mode: ThemeMode): void {
+    this.theme.setMode(mode);
+    this.closeThemeMenu();
+  }
+
   toggleMobileMenu(): void {
     this.isMobileMenuOpen = !this.isMobileMenuOpen;
   }
@@ -61,8 +111,8 @@ export class EngineerNavbar {
   }
 
   onLogoutClick(): void {
-    localStorage.removeItem('auth_token');
-    this.logout.emit();
+    this.auth.logout(); // supprime le token, met à jour isAuthenticated et navigue vers /login
+    this.logout.emit(); // notifie le parent au cas où il a besoin de réagir
   }
 
   onNotificationsClick(): void {
@@ -71,7 +121,7 @@ export class EngineerNavbar {
 
   @HostListener('window:resize')
   onResize(): void {
-    if (window.innerWidth > 900 && this.isMobileMenuOpen) {
+    if (window.innerWidth >= 1024 && this.isMobileMenuOpen) {
       this.isMobileMenuOpen = false;
     }
   }

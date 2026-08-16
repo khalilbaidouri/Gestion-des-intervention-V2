@@ -1,74 +1,166 @@
-<header class="navbar">
-  <div class="navbar__inner">
+<header class="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+  <div class="mx-auto flex h-16 max-w-[1600px] items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
+
     <!-- Logo -->
-    <a class="navbar__brand" routerLink="/" (click)="closeMobileMenu()">
-      <span class="navbar__brand-mark">OCP</span>
-      <span class="navbar__brand-name">TaskFlow</span>
+    <a class="flex shrink-0 items-center gap-2.5" routerLink="/" (click)="closeMobileMenu()">
+      <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-xs font-bold tracking-wide text-primary-foreground shadow-sm">OCP</span>
+      <span class="hidden font-serif text-[16px] font-semibold tracking-tight text-foreground sm:block">TaskFlow</span>
     </a>
 
-    <!-- Burger (mobile only) -->
-    <button
-      class="navbar__burger"
-      type="button"
-      [class.is-open]="isMobileMenuOpen"
-      (click)="toggleMobileMenu()"
-      [attr.aria-expanded]="isMobileMenuOpen"
-      aria-label="Ouvrir le menu de navigation"
-    >
-      <span></span><span></span><span></span>
-    </button>
-
-    <!-- Nav links -->
-    <nav
-      class="navbar__links"
-      [class.is-open]="isMobileMenuOpen"
-      aria-label="Navigation principale"
-    >
-      @for (link of navLinks; track link.path) {
-        <a
-          class="navbar__link"
-          [routerLink]="link.path"
-          routerLinkActive="is-active"
-          [routerLinkActiveOptions]="{ exact: link.path === '/' }"
-          (click)="closeMobileMenu()"
-        >
-          <span class="navbar__link-icon" aria-hidden="true">{{ link.icon }}</span>
-          <span class="navbar__link-label">{{ link.label }}</span>
-        </a>
-      }
+    <!-- Nav links (desktop) -->
+    <nav class="hidden min-w-0 flex-1 items-center justify-center lg:flex" aria-label="Navigation principale">
+      <div class="flex max-w-full items-center gap-0.5 overflow-x-auto rounded-lg bg-muted p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        @for (link of navLinks; track link.path) {
+          <a
+            class="group relative flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-md px-3 py-2 font-sans text-sm font-medium text-muted-foreground transition-all duration-200 hover:text-foreground xl:px-3.5"
+            [routerLink]="link.path"
+            routerLinkActive="!bg-card !text-primary shadow-sm"
+            [routerLinkActiveOptions]="{ exact: link.path === '/' }"
+            [attr.title]="link.label"
+            (click)="closeMobileMenu()"
+          >
+            <lucide-angular [img]="getIcon(link.icon)" [size]="17" [strokeWidth]="1.75" class="shrink-0" aria-hidden="true"></lucide-angular>
+            <span class="hidden xl:inline">{{ link.label }}</span>
+          </a>
+        }
+      </div>
     </nav>
 
-    <!-- Right side: notifications + user + logout -->
-    <div class="navbar__actions">
+    <!-- Right side -->
+    <div class="flex items-center gap-1 sm:gap-2">
+
+      <!-- Sélecteur de thème -->
+      <div class="relative">
+        <button
+          class="flex h-10 w-10 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors duration-200 hover:bg-muted hover:text-foreground"
+          type="button"
+          (click)="toggleThemeMenu()"
+          [attr.aria-expanded]="isThemeMenuOpen"
+          aria-label="Choisir le thème"
+        >
+          <lucide-angular [img]="currentThemeIcon" [size]="18" [strokeWidth]="1.75"></lucide-angular>
+        </button>
+
+        @if (isThemeMenuOpen) {
+          <div class="fixed inset-0 z-40" (click)="closeThemeMenu()"></div>
+
+          <div class="absolute right-0 z-50 mt-2 w-40 overflow-hidden rounded-lg border border-border bg-popover py-1 shadow-md">
+            @for (option of themeOptions; track option.mode) {
+              <button
+                type="button"
+                class="flex w-full items-center gap-2.5 px-3 py-2 text-left font-sans text-sm text-popover-foreground transition-colors duration-150 hover:bg-muted"
+                (click)="selectTheme(option.mode)"
+              >
+                <lucide-angular [img]="option.icon" [size]="16" [strokeWidth]="1.75" class="shrink-0 text-muted-foreground"></lucide-angular>
+                <span class="flex-1">{{ option.label }}</span>
+                @if (theme.mode() === option.mode) {
+                  <lucide-angular [img]="icons.check" [size]="15" [strokeWidth]="2" class="shrink-0 text-primary"></lucide-angular>
+                }
+              </button>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Notifications -->
       <button
-        class="navbar__icon-btn"
+        class="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors duration-200 hover:bg-muted hover:text-foreground"
         type="button"
         (click)="onNotificationsClick()"
         aria-label="Notifications"
       >
-        <span aria-hidden="true">🔔</span>
+        <lucide-angular [img]="icons.bell" [size]="19" [strokeWidth]="1.75"></lucide-angular>
         @if (notificationCount > 0) {
-          <span class="navbar__badge">{{ notificationCount }}</span>
+          <span class="absolute right-1 top-1 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-destructive px-1 font-sans text-[10px] font-semibold leading-none text-destructive-foreground ring-2 ring-background">
+            {{ notificationCount > 9 ? '9+' : notificationCount }}
+          </span>
         }
       </button>
 
-      <div class="navbar__user">
-        <span class="navbar__avatar" aria-hidden="true">{{ userInitials }}</span>
-        <div class="navbar__user-info">
-          <span class="navbar__user-name">{{ userFullName }}</span>
-          <span class="navbar__user-role">{{ userRole }}</span>
+      <!-- Divider -->
+      <div class="mx-1 hidden h-6 w-px bg-border sm:block"></div>
+
+      <!-- User -->
+      <div class="flex shrink-0 items-center gap-2.5 rounded-md py-1 pl-1 pr-1 transition-colors duration-200 sm:pr-3 sm:hover:bg-muted">
+        <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent font-sans text-[13px] font-semibold text-accent-foreground ring-1 ring-inset ring-border" aria-hidden="true">
+          {{ userInitials }}
+        </span>
+        <div class="hidden flex-col leading-tight md:flex">
+          <span class="max-w-[140px] truncate font-sans text-sm font-medium text-foreground">{{ userFullName }}</span>
+          <span class="font-sans text-xs text-muted-foreground">{{ userRole }}</span>
         </div>
       </div>
 
+      <!-- Logout -->
       <button
-        class="navbar__icon-btn navbar__logout"
+        class="flex h-10 shrink-0 items-center gap-1.5 rounded-md px-2.5 font-sans text-sm font-medium text-muted-foreground transition-colors duration-200 hover:bg-destructive/10 hover:text-destructive xl:px-3"
         type="button"
         (click)="onLogoutClick()"
         aria-label="Déconnexion"
       >
-        <span aria-hidden="true">🚪</span>
-        <span class="navbar__logout-label">Déconnexion</span>
+        <lucide-angular [img]="icons.logout" [size]="17" [strokeWidth]="1.75"></lucide-angular>
+        <span class="hidden xl:inline">Déconnexion</span>
+      </button>
+
+      <!-- Burger (mobile/tablette) -->
+      <button
+        class="ml-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-md text-foreground transition-colors duration-200 hover:bg-muted lg:hidden"
+        type="button"
+        (click)="toggleMobileMenu()"
+        [attr.aria-expanded]="isMobileMenuOpen"
+        aria-label="Ouvrir le menu de navigation"
+      >
+        @if (isMobileMenuOpen) {
+          <lucide-angular [img]="icons.close" [size]="22" [strokeWidth]="1.75"></lucide-angular>
+        } @else {
+          <lucide-angular [img]="icons.menu" [size]="22" [strokeWidth]="1.75"></lucide-angular>
+        }
       </button>
     </div>
   </div>
+
+  <!-- Nav links (mobile / tablette) -->
+  <nav
+    class="overflow-hidden border-t border-border bg-background transition-[max-height] duration-300 ease-in-out lg:hidden"
+    [class.max-h-0]="!isMobileMenuOpen"
+    [class.max-h-[32rem]]="isMobileMenuOpen"
+    [class.border-t-0]="!isMobileMenuOpen"
+    [class.overflow-y-auto]="isMobileMenuOpen"
+    aria-label="Navigation principale mobile"
+  >
+    <div class="flex flex-col gap-1 px-4 py-3">
+      @for (link of navLinks; track link.path) {
+        <a
+          class="flex items-center gap-3 rounded-md px-3 py-2.5 font-sans text-sm font-medium text-muted-foreground transition-colors duration-200 hover:bg-muted hover:text-foreground"
+          [routerLink]="link.path"
+          routerLinkActive="!bg-accent !text-primary"
+          [routerLinkActiveOptions]="{ exact: link.path === '/' }"
+          (click)="closeMobileMenu()"
+        >
+          <lucide-angular [img]="getIcon(link.icon)" [size]="18" [strokeWidth]="1.75" class="shrink-0" aria-hidden="true"></lucide-angular>
+          <span>{{ link.label }}</span>
+        </a>
+      }
+
+      <!-- Sélecteur de thème (mobile) -->
+      <div class="mt-2 border-t border-border pt-2">
+        <p class="px-3 pb-1.5 font-sans text-xs font-medium uppercase tracking-wide text-muted-foreground">Apparence</p>
+        <div class="flex gap-1.5 px-3">
+          @for (option of themeOptions; track option.mode) {
+            <button
+              type="button"
+              class="flex flex-1 flex-col items-center gap-1 rounded-md border border-border px-2 py-2.5 font-sans text-xs text-muted-foreground transition-colors duration-150"
+              [class.!border-primary]="theme.mode() === option.mode"
+              [class.!text-primary]="theme.mode() === option.mode"
+              [class.bg-accent]="theme.mode() === option.mode"
+              (click)="selectTheme(option.mode)"
+            >
+              <lucide-angular [img]="option.icon" [size]="17" [strokeWidth]="1.75"></lucide-angular>
+              <span>{{ option.label }}</span>
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+  </nav>
 </header>

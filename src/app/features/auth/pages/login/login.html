@@ -87,6 +87,12 @@
             >Email professionnel</label
           >
           <div class="relative">
+            <lucide-angular
+              [img]="icons.mail"
+              [size]="18"
+              [strokeWidth]="1.75"
+              class="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground"
+            ></lucide-angular>
             <input
               id="email"
               type="email"
@@ -115,6 +121,13 @@
             >
           </div>
           <div class="relative">
+            <lucide-angular
+              [img]="icons.lock"
+              [size]="18"
+              [strokeWidth]="1.75"
+              class="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground"
+            ></lucide-angular>
+
             <input
               id="password"
               [type]="showPassword ? 'text' : 'password'"
@@ -155,7 +168,6 @@
                   [img]="icons.eyeOff"
                   [size]="18"
                   [strokeWidth]="1.75"
-                  color="#2563eb"
                 ></lucide-angular>
               } @else {
                 <lucide-angular [img]="icons.eye" [size]="18" [strokeWidth]="1.75"></lucide-angular>

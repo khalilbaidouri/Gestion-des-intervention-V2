@@ -10,7 +10,6 @@ import { EngineerNavbar } from '../engineer-navbar/engineer-navbar';
 export class EngineerLayout {
 
   constructor(private router: Router) {
-    console.log('ENGINEER LAYOUT CHARGÉ');
   }
 
   onLogout(): void {
