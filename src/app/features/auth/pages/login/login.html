@@ -1,29 +1,220 @@
-<div class="login-container">
-  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-    <h2>Connexion</h2>
+<div class="flex min-h-screen flex-col md:flex-row">
+  <!-- Panneau gauche : branding -->
+  <div class="relative hidden w-full flex-shrink-0 overflow-hidden bg-primary md:flex md:w-1/2">
+    <!-- Motif de fond décoratif -->
+    <div
+      class="absolute inset-0 opacity-[0.07]"
+      style="
+        background-image: radial-gradient(circle at 2px 2px, currentColor 1px, transparent 0);
+        background-size: 32px 32px;
+        color: white;
+      "
+    ></div>
+    <div class="absolute inset-0 bg-gradient-to-t from-primary via-primary/95 to-primary/80"></div>
 
-    <div class="form-group">
-      <label for="email">Email</label>
-      <input id="email" type="email" formControlName="email" />
-      @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
-        <span class="error">Email invalide</span>
-      }
+    <div class="relative flex w-full flex-col justify-between p-12 lg:p-16">
+      <!-- Logo -->
+      <div class="flex items-center gap-3">
+        <span
+          class="flex h-12 w-12 items-center justify-center rounded-lg bg-primary-foreground text-sm font-bold tracking-wide text-primary shadow-md"
+        >
+          OCP
+        </span>
+        <div class="flex flex-col leading-tight">
+          <span class="font-serif text-lg font-semibold tracking-tight text-primary-foreground"
+            >Groupe OCP</span
+          >
+          <span class="font-sans text-xs text-primary-foreground/70"
+            >TaskFlow — Portail industriel</span
+          >
+        </div>
+      </div>
+
+      <!-- Message central -->
+      <div class="flex flex-col gap-4">
+        <lucide-angular
+          [img]="icons.shieldCheck"
+          [size]="40"
+          [strokeWidth]="1.5"
+          class="text-primary-foreground/90"
+        ></lucide-angular>
+        <h1
+          class="font-serif text-3xl font-semibold leading-tight tracking-tight text-primary-foreground lg:text-4xl"
+        >
+          Accès sécurisé à votre espace de gestion des interventions
+        </h1>
+        <p class="max-w-md font-sans text-sm leading-relaxed text-primary-foreground/75">
+          Suivez les demandes, planifiez les interventions et gérez vos équipes depuis un seul et
+          même portail.
+        </p>
+      </div>
+
+      <!-- Footer -->
+      <p class="font-sans text-xs text-primary-foreground/60">
+        © {{ currentYear }} Groupe OCP — Tous droits réservés
+      </p>
     </div>
+  </div>
 
-    <div class="form-group">
-      <label for="password">Mot de passe</label>
-      <input id="password" type="password" formControlName="password" />
-      @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
-        <span class="error">Mot de passe requis (min 6 caractères)</span>
-      }
+  <!-- Panneau droit : formulaire -->
+  <div
+    class="flex w-full flex-1 flex-col items-center justify-center bg-background px-6 py-12 sm:px-10"
+  >
+    <div class="w-full max-w-sm">
+      <!-- Logo mobile uniquement -->
+      <div class="mb-8 flex flex-col items-center gap-3 md:hidden">
+        <span
+          class="flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-sm font-bold tracking-wide text-primary-foreground shadow-sm"
+        >
+          OCP
+        </span>
+        <span class="font-serif text-lg font-semibold tracking-tight text-foreground"
+          >Groupe OCP — TaskFlow</span
+        >
+      </div>
+
+      <div class="mb-8 flex flex-col gap-1.5">
+        <h2 class="font-serif text-2xl font-semibold tracking-tight text-foreground">Connexion</h2>
+        <p class="font-sans text-sm text-muted-foreground">
+          Authentifiez-vous pour accéder au portail industriel.
+        </p>
+      </div>
+
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-5">
+        <!-- Email -->
+        <div class="flex flex-col gap-1.5">
+          <label for="email" class="font-sans text-sm font-medium text-foreground"
+            >Email professionnel</label
+          >
+          <div class="relative">
+            <input
+              id="email"
+              type="email"
+              formControlName="email"
+              placeholder="nom@ocpgroup.ma"
+              autocomplete="email"
+              class="w-full rounded-md border border-input bg-background py-2.5 pl-10 pr-3 font-sans text-sm text-foreground placeholder:text-muted-foreground/60 transition-colors duration-150 focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/30"
+              [class.!border-destructive]="
+                loginForm.get('email')?.invalid && loginForm.get('email')?.touched
+              "
+            />
+          </div>
+          @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
+            <span class="font-sans text-xs text-destructive">Email invalide</span>
+          }
+        </div>
+
+        <!-- Mot de passe -->
+        <div class="flex flex-col gap-1.5">
+          <div class="flex items-center justify-between">
+            <label for="password" class="font-sans text-sm font-medium text-foreground"
+              >Mot de passe</label
+            >
+            <a href="#" class="font-sans text-xs font-medium text-primary hover:underline"
+              >Mot de passe oublié ?</a
+            >
+          </div>
+          <div class="relative">
+            <input
+              id="password"
+              [type]="showPassword ? 'text' : 'password'"
+              formControlName="password"
+              placeholder="••••••••"
+              autocomplete="current-password"
+              class="w-full rounded-md border border-input bg-background py-2.5 pl-10 pr-10 font-sans text-sm text-foreground placeholder:text-muted-foreground/60 transition-colors duration-150 focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/30"
+              [class.!border-destructive]="
+                loginForm.get('password')?.invalid && loginForm.get('password')?.touched
+              "
+            />
+            <button
+              type="button"
+              (click)="togglePasswordVisibility()"
+              style="
+                position: absolute;
+                right: 0.75rem;
+                top: 50%;
+                transform: translateY(-50%);
+                width: auto;
+                height: auto;
+                min-width: 0;
+                padding: 0;
+                margin: 0;
+                background: transparent;
+                border: none;
+                box-shadow: none;
+                border-radius: 0;
+                line-height: 0;
+              "
+              class="text-muted-foreground transition-colors hover:text-foreground"
+              [attr.aria-label]="
+                showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'
+              "
+            >
+              @if (showPassword) {
+                <lucide-angular
+                  [img]="icons.eyeOff"
+                  [size]="18"
+                  [strokeWidth]="1.75"
+                  color="#2563eb"
+                ></lucide-angular>
+              } @else {
+                <lucide-angular [img]="icons.eye" [size]="18" [strokeWidth]="1.75"></lucide-angular>
+              }
+            </button>
+          </div>
+          @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
+            <span class="font-sans text-xs text-destructive"
+              >Mot de passe requis (min 6 caractères)</span
+            >
+          }
+        </div>
+
+        <!-- Remember me -->
+        <label class="flex cursor-pointer items-center gap-2.5 select-none">
+          <input
+            type="checkbox"
+            formControlName="rememberMe"
+            class="h-4 w-4 rounded border-input text-primary focus:ring-2 focus:ring-ring/30"
+          />
+          <span class="font-sans text-sm text-muted-foreground">Se souvenir de moi</span>
+        </label>
+
+        <!-- Erreur globale -->
+        @if (errorMessage) {
+          <div
+            class="flex items-center gap-2 rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2.5 font-sans text-sm text-destructive"
+          >
+            <lucide-angular
+              [img]="icons.alertCircle"
+              [size]="16"
+              [strokeWidth]="2"
+              class="shrink-0"
+            ></lucide-angular>
+            {{ errorMessage }}
+          </div>
+        }
+
+        <!-- Submit -->
+        <button
+          type="submit"
+          [disabled]="isLoading"
+          class="mt-1 flex h-11 w-full items-center justify-center gap-2 rounded-md bg-primary font-sans text-sm font-medium text-primary-foreground shadow-sm transition-colors duration-150 hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          @if (isLoading) {
+            <span
+              class="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground/40 border-t-primary-foreground"
+            ></span>
+            Connexion...
+          } @else {
+            Se connecter
+            <lucide-angular [img]="icons.arrowRight" [size]="17" [strokeWidth]="2"></lucide-angular>
+          }
+        </button>
+      </form>
+
+      <p class="mt-8 text-center font-sans text-xs text-muted-foreground md:hidden">
+        © {{ currentYear }} Groupe OCP — Tous droits réservés
+      </p>
     </div>
-
-    @if (errorMessage) {
-      <div class="error">{{ errorMessage }}</div>
-    }
-
-    <button type="submit" [disabled]="isLoading">
-      {{ isLoading ? 'Connexion...' : 'Se connecter' }}
-    </button>
-  </form>
+  </div>
 </div>

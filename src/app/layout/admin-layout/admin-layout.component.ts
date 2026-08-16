@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component, inject } from '@angular/core';
+import { RouterOutlet, Router } from '@angular/router';
 import { AdminNavbar } from '../admin-navbar/admin-navbar';
 
 @Component({
@@ -7,4 +7,10 @@ import { AdminNavbar } from '../admin-navbar/admin-navbar';
   templateUrl: './admin-layout.component.html',
   imports: [RouterOutlet, AdminNavbar]
 })
-export class AdminLayout {}
+export class AdminLayout {
+  private router = inject(Router);
+
+  onLogout(): void {
+    this.router.navigate(['/login']);
+  }
+}

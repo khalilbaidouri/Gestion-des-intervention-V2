@@ -8,10 +8,12 @@ import { Auth } from '../../../../core/services/auth';
 
 import { LoginRequest, TypeRole } from '../../models/auth.model';
 
+import { LucideAngularModule, Mail, Lock, Eye, EyeOff, ShieldCheck, AlertCircle, ArrowRight } from 'lucide-angular';
+
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink , LucideAngularModule],
   templateUrl: './login.html',
   styleUrl: './login.css',
 })
@@ -21,6 +23,24 @@ export class Login {
   errorMessage = '';
 
   isLoading = false;
+  currentYear = new Date().getFullYear();
+
+   readonly icons = {
+    mail: Mail,
+    lock: Lock,
+    eye: Eye,
+    eyeOff: EyeOff,
+    shieldCheck: ShieldCheck,
+    alertCircle: AlertCircle,
+    arrowRight: ArrowRight,
+  };
+
+    showPassword = false;
+
+    togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
+  }
+
 
   constructor(
     private fb: FormBuilder,

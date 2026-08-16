@@ -22,6 +22,7 @@
     "@angular/ssr": "^21.2.20",
     "express": "^5.1.0",
     "jwt-decode": "^4.0.0",
+    "lucide-angular": "^1.0.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
   },
