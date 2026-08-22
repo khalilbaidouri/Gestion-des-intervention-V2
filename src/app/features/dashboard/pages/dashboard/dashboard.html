@@ -1,1 +1,281 @@
-  <p>dashboard okkk works!</p>
+<div class="flex flex-col gap-6">
+  <!-- Header -->
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <h1
+        class="flex items-center gap-2 font-serif text-3xl font-semibold tracking-tight text-foreground"
+      >
+        <lucide-angular
+          [img]="icons.barChart"
+          [size]="26"
+          [strokeWidth]="1.75"
+          class="text-primary"
+        ></lucide-angular>
+        Tableau de bord
+      </h1>
+      <p class="mt-1 font-sans text-sm capitalize text-muted-foreground">{{ currentDateLabel }}</p>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <!-- Sélecteur de période -->
+      <div class="flex items-center gap-0.5 rounded-lg bg-muted p-1">
+        <button
+          type="button"
+          class="rounded-md px-3 py-1.5 font-sans text-sm font-medium transition-colors duration-150"
+          [class.bg-card]="selectedPeriod === 'semaine'"
+          [class.shadow-sm]="selectedPeriod === 'semaine'"
+          [class.text-foreground]="selectedPeriod === 'semaine'"
+          [class.text-muted-foreground]="selectedPeriod !== 'semaine'"
+          (click)="setPeriod('semaine')"
+        >
+          Cette semaine
+        </button>
+        <button
+          type="button"
+          class="rounded-md px-3 py-1.5 font-sans text-sm font-medium transition-colors duration-150"
+          [class.bg-card]="selectedPeriod === 'mois'"
+          [class.shadow-sm]="selectedPeriod === 'mois'"
+          [class.text-foreground]="selectedPeriod === 'mois'"
+          [class.text-muted-foreground]="selectedPeriod !== 'mois'"
+          (click)="setPeriod('mois')"
+        >
+          Ce mois
+        </button>
+        <button
+          type="button"
+          class="rounded-md px-3 py-1.5 font-sans text-sm font-medium transition-colors duration-150"
+          [class.bg-card]="selectedPeriod === 'trimestre'"
+          [class.shadow-sm]="selectedPeriod === 'trimestre'"
+          [class.text-foreground]="selectedPeriod === 'trimestre'"
+          [class.text-muted-foreground]="selectedPeriod !== 'trimestre'"
+          (click)="setPeriod('trimestre')"
+        >
+          Ce trimestre
+        </button>
+      </div>
+
+      <!-- Badge temps réel -->
+      <span
+        class="flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 font-sans text-xs font-medium text-muted-foreground"
+      >
+        <span class="relative flex h-2 w-2">
+          <span
+            class="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75"
+          ></span>
+          <span class="relative inline-flex h-2 w-2 rounded-full bg-primary"></span>
+        </span>
+        En temps réel
+      </span>
+    </div>
+  </div>
+
+  <!-- Carte de bienvenue -->
+  <div class="rounded-lg border border-border bg-card p-6 shadow-sm">
+    <h2 class="font-serif text-xl font-semibold tracking-tight text-card-foreground">
+      Bienvenue, {{ userFullName }}&nbsp;! 👋
+    </h2>
+    <p class="mt-1.5 font-sans text-sm leading-relaxed text-muted-foreground">
+      {{ roleSpecificMessage }}
+    </p>
+
+    @if (!isLoading) {
+      <div class="mt-4 flex flex-wrap gap-6 border-t border-border pt-4">
+        <div class="flex items-center gap-2">
+          <lucide-angular
+            [img]="icons.checkCircle"
+            [size]="16"
+            [strokeWidth]="1.75"
+            class="text-primary"
+          ></lucide-angular>
+          <span class="font-sans text-sm text-muted-foreground">Taux de réussite :</span>
+          <span class="font-sans text-sm font-semibold text-foreground">{{ tauxReussite }}%</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <lucide-angular
+            [img]="icons.listChecks"
+            [size]="16"
+            [strokeWidth]="1.75"
+            class="text-primary"
+          ></lucide-angular>
+          <span class="font-sans text-sm text-muted-foreground">Efficacité :</span>
+          <span class="font-sans text-sm font-semibold text-foreground">{{ efficacite }}%</span>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- Cartes de stats avec tendance -->
+  <div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
+    <div class="rounded-lg border border-border bg-card p-5 shadow-sm">
+      <div class="flex items-center justify-between">
+        <span class="font-sans text-xs font-medium uppercase tracking-wide text-muted-foreground"
+          >Interventions totales</span
+        >
+        <span
+          class="flex items-center gap-0.5 font-sans text-xs font-semibold"
+          [class.text-primary]="trends.total >= 0"
+          [class.text-destructive]="trends.total < 0"
+        >
+          <lucide-angular
+            [img]="trends.total >= 0 ? icons.trendUp : icons.trendDown"
+            [size]="13"
+            [strokeWidth]="2"
+          ></lucide-angular>
+          {{ trends.total >= 0 ? '+' : '' }}{{ trends.total }}%
+        </span>
+      </div>
+      <p class="mt-2 font-serif text-3xl font-semibold text-foreground">
+        {{ isLoading ? '—' : total }}
+      </p>
+    </div>
+
+    <div class="rounded-lg border border-border bg-card p-5 shadow-sm">
+      <div class="flex items-center justify-between">
+        <span class="font-sans text-xs font-medium uppercase tracking-wide text-muted-foreground"
+          >Terminées</span
+        >
+        <span
+          class="flex items-center gap-0.5 font-sans text-xs font-semibold"
+          [class.text-primary]="trends.terminees >= 0"
+          [class.text-destructive]="trends.terminees < 0"
+        >
+          <lucide-angular
+            [img]="trends.terminees >= 0 ? icons.trendUp : icons.trendDown"
+            [size]="13"
+            [strokeWidth]="2"
+          ></lucide-angular>
+          {{ trends.terminees >= 0 ? '+' : '' }}{{ trends.terminees }}%
+        </span>
+      </div>
+      <p class="mt-2 font-serif text-3xl font-semibold text-foreground">
+        {{ isLoading ? '—' : terminees }}
+      </p>
+    </div>
+
+    <div class="rounded-lg border border-border bg-card p-5 shadow-sm">
+      <div class="flex items-center justify-between">
+        <span class="font-sans text-xs font-medium uppercase tracking-wide text-muted-foreground"
+          >En cours</span
+        >
+        <span
+          class="flex items-center gap-0.5 font-sans text-xs font-semibold"
+          [class.text-primary]="trends.enCours >= 0"
+          [class.text-destructive]="trends.enCours < 0"
+        >
+          <lucide-angular
+            [img]="trends.enCours >= 0 ? icons.trendUp : icons.trendDown"
+            [size]="13"
+            [strokeWidth]="2"
+          ></lucide-angular>
+          {{ trends.enCours >= 0 ? '+' : '' }}{{ trends.enCours }}%
+        </span>
+      </div>
+      <p class="mt-2 font-serif text-3xl font-semibold text-foreground">
+        {{ isLoading ? '—' : enCours }}
+      </p>
+    </div>
+
+    <div class="rounded-lg border border-border bg-card p-5 shadow-sm">
+      <div class="flex items-center justify-between">
+        <span class="font-sans text-xs font-medium uppercase tracking-wide text-muted-foreground"
+          >Planifiées</span
+        >
+        <span
+          class="flex items-center gap-0.5 font-sans text-xs font-semibold"
+          [class.text-primary]="trends.planifiees >= 0"
+          [class.text-destructive]="trends.planifiees < 0"
+        >
+          <lucide-angular
+            [img]="trends.planifiees >= 0 ? icons.trendUp : icons.trendDown"
+            [size]="13"
+            [strokeWidth]="2"
+          ></lucide-angular>
+          {{ trends.planifiees >= 0 ? '+' : '' }}{{ trends.planifiees }}%
+        </span>
+      </div>
+      <p class="mt-2 font-serif text-3xl font-semibold text-foreground">
+        {{ isLoading ? '—' : planifiees }}
+      </p>
+    </div>
+  </div>
+
+  <!-- Graphiques -->
+  <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+    <!-- Évolution mensuelle -->
+    <div class="rounded-lg border border-border bg-card p-6 shadow-sm">
+      <h2
+        class="mb-5 flex items-center gap-2 font-serif text-lg font-semibold tracking-tight text-card-foreground"
+      >
+        <lucide-angular
+          [img]="icons.calendar"
+          [size]="18"
+          [strokeWidth]="1.75"
+          class="text-primary"
+        ></lucide-angular>
+        Évolution mensuelle
+      </h2>
+
+      <div class="flex h-40 items-end gap-3">
+        @for (m of monthlyEvolution; track m.label) {
+          <div class="flex flex-1 flex-col items-center gap-2">
+            <div class="flex w-full flex-1 items-end">
+              <div
+                class="w-full rounded-t-md bg-primary/80 transition-all duration-300"
+                [style.height.%]="(m.count / monthlyMax) * 100"
+              ></div>
+            </div>
+            <span class="font-sans text-xs text-muted-foreground">{{ m.label }}</span>
+          </div>
+        }
+      </div>
+      <p
+        class="mt-4 border-t border-border pt-3 text-center font-sans text-xs text-muted-foreground"
+      >
+        Total sur la période affichée
+      </p>
+    </div>
+
+    <!-- Répartition par statut -->
+    <div class="rounded-lg border border-border bg-card p-6 shadow-sm">
+      <h2
+        class="mb-5 flex items-center gap-2 font-serif text-lg font-semibold tracking-tight text-card-foreground"
+      >
+        <lucide-angular
+          [img]="icons.pin"
+          [size]="18"
+          [strokeWidth]="1.75"
+          class="text-primary"
+        ></lucide-angular>
+        Répartition par statut
+      </h2>
+
+      @if (isLoading) {
+        <div class="flex flex-col gap-4">
+          <div class="h-3 w-full animate-pulse rounded bg-muted"></div>
+          <div class="h-3 w-full animate-pulse rounded bg-muted"></div>
+          <div class="h-3 w-full animate-pulse rounded bg-muted"></div>
+        </div>
+      } @else {
+        <div class="flex flex-col gap-4">
+          @for (slice of statusBreakdown; track slice.label) {
+            <div>
+              <div class="mb-1.5 flex items-center justify-between font-sans text-sm">
+                <span class="text-muted-foreground">{{ slice.label }}</span>
+                <span class="font-medium text-foreground"
+                  >{{ slice.count }} ({{ slice.percent }}%)</span
+                >
+              </div>
+              <div class="h-2 w-full overflow-hidden rounded-full bg-muted">
+                <div
+                  class="h-full rounded-full transition-all duration-500"
+                  [class]="slice.colorClass"
+                  [style.width.%]="slice.percent"
+                ></div>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+</div>
